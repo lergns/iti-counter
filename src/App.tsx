@@ -1,29 +1,93 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
-import { Tableau } from "./components/Tableau";
-import { IncBtn } from "./components/IncBtn";
-import { ResetBtn } from "./components/ResetBtn";
+import { CounterSettings } from "./components/CounterSettings";
+import { CounterTableau } from "./components/CounterTableau";
 
-function App() {
-  let [counter, setCounter] = useState<number>(0);
+export const App = () => {
+  const [isError, setIsError] = useState<boolean>(false);
+  const [isCounting, setIsCounting] = useState<boolean>(false);
+  const [minValue, setMinValue] = useState<number>(0);
+  const [maxValue, setMaxValue] = useState<number>(5);
+  const [value, setValue] = useState<number>(minValue);
 
-  const incCounter = () => {
-    if (counter <= 5) {
-      setCounter((prev) => prev + 1);
+  useEffect(() => {
+    getFromLocalStorage();
+    setValue(minValue);
+  }, []);
+
+  const setNewMaxValue = (newMaxValue: number) => {
+    setIsCounting(false);
+
+    if (newMaxValue < 1 || newMaxValue <= minValue) {
+      setIsError(true);
+    } else if (newMaxValue >= 1 && newMaxValue > minValue) {
+      setIsError(false);
+      setMaxValue(newMaxValue);
     }
   };
 
-  const resetCounter = () => {
-    setCounter(0);
+  const setNewMinValue = (newMinValue: number) => {
+    setIsCounting(false);
+
+    if (newMinValue < 0 || maxValue <= newMinValue) {
+      setIsError(true);
+    } else if (newMinValue >= 0 && maxValue > newMinValue) {
+      setIsError(false);
+      setMinValue(newMinValue);
+    }
+  };
+
+  const setValues = () => {
+    setToLocalStorage();
+    setIsCounting(true);
+    setValue(minValue);
+  };
+
+  const setToLocalStorage = () => {
+    localStorage.setItem("minValue", JSON.stringify(minValue));
+    localStorage.setItem("maxValue", JSON.stringify(maxValue));
+  };
+
+  const getFromLocalStorage = () => {
+    const minValueAsString = localStorage.getItem("minValue");
+    const maxValueAsString = localStorage.getItem("maxValue");
+    if (minValueAsString) {
+      setMinValue(JSON.parse(minValueAsString));
+    }
+    if (maxValueAsString) {
+      setMaxValue(JSON.parse(maxValueAsString));
+    }
+  };
+
+  const incValue = () => {
+    if (value <= maxValue) {
+      setValue((prev) => prev + 1);
+    }
+  };
+  const resetValue = () => {
+    setValue(minValue);
   };
 
   return (
-    <div className="App">
-      <Tableau counterValue={counter} />
-      <IncBtn incCounterValue={incCounter} counterValue={counter} />
-      <ResetBtn resetCounterValue={resetCounter} counterValue={counter} />
+    <div>
+      <CounterSettings
+        maxValue={maxValue}
+        minValue={minValue}
+        setNewMinValue={setNewMinValue}
+        setNewMaxValue={setNewMaxValue}
+        isCounting={isCounting}
+        isError={isError}
+        setValues={setValues}
+      />
+      <CounterTableau
+        value={value}
+        maxValue={maxValue}
+        minValue={minValue}
+        incValue={incValue}
+        resetValue={resetValue}
+        isCounting={isCounting}
+        isError={isError}
+      />
     </div>
   );
-}
-
-export default App;
+};
