@@ -24,7 +24,6 @@
   font-size: 100px;
 }
 
-/* TODO */
 .tableau-max {
   width: 300px;
   height: 150px;
@@ -73,7 +72,7 @@
 
 .settings-bar .value-line {
   display: inline-block;
-  padding-top: 36px;
+  padding-top: 24px;
 }
 
 .settings-bar .input-line {

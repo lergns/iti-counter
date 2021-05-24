@@ -1,62 +1,90 @@
 import React, { ChangeEvent } from "react";
 import { Btn } from "./Btn";
+import { useDispatch, useSelector } from "react-redux";
+import { AppStateType } from "../BLL/store";
+import {
+  setMaxValueAC,
+  setMinValueAC,
+  setValueAC,
+} from "../BLL/counter-reducer";
+import { InputCounterValue } from "./InputCounterValue";
 
 type CounterSettingsPropsType = {
-  minValue: number;
-  maxValue: number;
-  setNewMinValue: (newMinValue: number) => void;
-  setNewMaxValue: (newMaxValue: number) => void;
   isCounting: boolean;
+  setIsCounting: (newIsCounting: boolean) => void;
   isError: boolean;
-  setValues: () => void;
+  setIsError: (newIsError: boolean) => void;
 };
 
 export function CounterSettings(props: CounterSettingsPropsType) {
-  const updateMaxValueHandler = (event: ChangeEvent<HTMLInputElement>) => {
-    props.setNewMaxValue(event.currentTarget.valueAsNumber);
+  const minValue = useSelector<AppStateType, number>(
+    (state) => state.counter.minValue
+  );
+  const maxValue = useSelector<AppStateType, number>(
+    (state) => state.counter.maxValue
+  );
+  const dispatch = useDispatch();
+
+  const setValue = () => {
+    props.setIsCounting(true);
+    dispatch(setValueAC(minValue));
   };
-  const updateMinValueHandler = (event: ChangeEvent<HTMLInputElement>) => {
-    props.setNewMinValue(event.currentTarget.valueAsNumber);
+
+  const setNewMaxValue = (event: ChangeEvent<HTMLInputElement>) => {
+    props.setIsCounting(false);
+
+    const newMaxValue = event.currentTarget.valueAsNumber;
+
+    if (newMaxValue < 1 || newMaxValue <= minValue) {
+      props.setIsError(true);
+    } else if (newMaxValue >= 1 && newMaxValue > minValue) {
+      props.setIsError(false);
+      dispatch(setMaxValueAC(newMaxValue));
+    }
   };
-  const updateBothValuesHandler = () => {
-    props.setValues();
+
+  const setNewMinValue = (event: ChangeEvent<HTMLInputElement>) => {
+    props.setIsCounting(false);
+
+    const newMinValue = event.currentTarget.valueAsNumber;
+
+    if (newMinValue < 0 || maxValue <= newMinValue) {
+      props.setIsError(true);
+    } else if (newMinValue >= 0 && maxValue > newMinValue) {
+      props.setIsError(false);
+      dispatch(setMinValueAC(newMinValue));
+    }
   };
 
   return (
     <div className={"box left-box"}>
       <div>
         <div className={"settings-bar"}>
-          <div>
-            <span className={"value-line"}>max value:</span>
-            <input
-              className={props.isError ? "input-error" : "input-line"}
-              type={"number"}
-              onChange={updateMaxValueHandler}
-              value={props.maxValue}
-            />
-          </div>
-          <div>
-            <span>min value:</span>
-            <input
-              className={props.isError ? "input-error" : "input-line"}
-              type={"number"}
-              onChange={updateMinValueHandler}
-              value={props.minValue}
-            />
-          </div>
+          <InputCounterValue
+            valueType={"max value:"}
+            valueSet={maxValue}
+            isError={props.isError}
+            onChangeHandler={setNewMaxValue}
+          />
+          <InputCounterValue
+            valueType={"min value:"}
+            valueSet={minValue}
+            isError={props.isError}
+            onChangeHandler={setNewMinValue}
+          />
         </div>
         <div>
           {props.isCounting ? (
             <Btn
               btnValue={"set"}
               btnDisabled={true}
-              onClickHandler={updateBothValuesHandler}
+              onClickHandler={setValue}
             />
           ) : (
             <Btn
               btnValue={"set"}
               btnDisabled={props.isError}
-              onClickHandler={updateBothValuesHandler}
+              onClickHandler={setValue}
             />
           )}
         </div>
