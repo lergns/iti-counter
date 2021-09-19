@@ -3,6 +3,7 @@ import { Btn } from "./Btn";
 import { useDispatch, useSelector } from "react-redux";
 import { AppStateType } from "../BLL/store";
 import { incValueAC, resetValueAC } from "../BLL/counter-reducer";
+import { Dispatch } from "redux";
 
 type CounterTableauPropsType = {
   isCounting: boolean;
@@ -19,7 +20,7 @@ export function CounterTableau(props: CounterTableauPropsType) {
   const maxValue = useSelector<AppStateType, number>(
     (state) => state.counter.maxValue
   );
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<Dispatch>();
 
   const incValue = () => {
     if (value < maxValue) {

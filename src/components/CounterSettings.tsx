@@ -8,6 +8,7 @@ import {
   setValueAC,
 } from "../BLL/counter-reducer";
 import { InputCounterValue } from "./InputCounterValue";
+import { Dispatch } from "redux";
 
 type CounterSettingsPropsType = {
   isCounting: boolean;
@@ -23,7 +24,7 @@ export function CounterSettings(props: CounterSettingsPropsType) {
   const maxValue = useSelector<AppStateType, number>(
     (state) => state.counter.maxValue
   );
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<Dispatch>();
 
   const setValue = () => {
     props.setIsCounting(true);
